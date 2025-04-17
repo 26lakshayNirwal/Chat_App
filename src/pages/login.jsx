@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { server } from '../constants/config';
 import { userExists } from '../redux/reducers/auth';
+import {  useNavigate } from 'react-router-dom';
 
 const useFileHandler = () => {
   const [file, setFile] = useState(null);
@@ -38,6 +39,8 @@ const Login = () => {
   const toggleLogin = () => setIsLogin((prev) => !prev);
   const avatar = useFileHandler();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
 
   // refs for form inputs
   const name = useRef();
@@ -65,6 +68,7 @@ const Login = () => {
       );
 
       dispatch(userExists(data.user));
+      navigate("/");
       toast.success(data.message);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -89,6 +93,7 @@ const Login = () => {
       );
 
       dispatch(userExists(true));
+      
       toast.success(data.message);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");
