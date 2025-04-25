@@ -11,6 +11,7 @@ import { useMyChatsQuery } from '../../redux/api/api.js'
 import { useDispatch, useSelector } from 'react-redux'
 import { setIsMobile } from '../../redux/reducers/misc.js'
 import { useErrors } from '../../hooks/hook.jsx'
+import { getSocket } from '../../../socket.jsx'
 
 const handleDeleteChat = (e, _id, groupChat) => {
     e.preventDefault();
@@ -22,6 +23,9 @@ return (props) => {
     const params= useParams();
     const chatId= params.chatId;
     const dispatch = useDispatch();
+    const socket = getSocket();
+
+  //  console.log(socket.id)
 
     const {isMobile}= useSelector((state) => state.misc);
     const {user}= useSelector((state) => state.auth);
@@ -47,6 +51,7 @@ return (props) => {
                     chats={data?.chats} 
                     chatId={chatId} 
                     handleDeleteChat={handleDeleteChat}
+                    
                    /> 
                 </Drawer>
             )
@@ -73,7 +78,7 @@ return (props) => {
                     }
                 </Grid>
                 <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"} bgcolor={"#f9f9f9"}>
-                    <WrappedComponent {...props} />
+                    <WrappedComponent {...props} chatId={chatId} user={user}/>
                 </Grid>
                 <Grid item md={4} lg={3} height={"100%"}
                 sx={{

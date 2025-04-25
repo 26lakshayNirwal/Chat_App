@@ -1,7 +1,7 @@
 import { Avatar, Button, Dialog, DialogTitle, ListItem, Skeleton, Stack, Typography } from '@mui/material';
 import React, { memo } from 'react';
-import { useGetNotificationsQuery } from '../../redux/api/api';
-import { useErrors } from '../../hooks/hook';
+import { useAcceptFriendRequestMutation, useGetNotificationsQuery } from '../../redux/api/api';
+import { useAsyncMutation, useErrors } from '../../hooks/hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsNotification } from '../../redux/reducers/misc';
 const Notifications = () => {
@@ -12,11 +12,26 @@ const Notifications = () => {
 
   const {isLoading,data,error, isError } = useGetNotificationsQuery();
  
-  console.log(data)
-   
-  const friendRequestHandler=({_id,accept})=>{
-       
-  }
+  const [acceptRequest] = useAcceptFriendRequestMutation();
+
+  const friendRequestHandler = async ({ _id, accept }) => {
+
+     dispatch(setIsNotification(false));
+    try {
+      const res = await acceptRequest({ requestId:_id, accept });
+      
+      if (res?.data?.success) {
+        console.log("Use Socket Here");
+        toast.success(res.data?.message);
+      }
+      else{
+        toast.error(res.data?.error || "Something went wrong");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.log(error);
+    }
+  };
 
   const closeHandler=()=> dispatch(setIsNotification(false));
   
@@ -55,7 +70,7 @@ const Notifications = () => {
   )
 }
 
-const NotificationItem = memo(({sender,_id,handle})=>{
+const NotificationItem = memo(({sender,_id,handler})=>{
   const {name,avatar}=sender;
   return (
     <ListItem>
@@ -65,7 +80,7 @@ const NotificationItem = memo(({sender,_id,handle})=>{
         spacing={"1rem"}
         width={"100%"}
         >
-            <Avatar src={avatar}/>
+            <Avatar src={avatar?.url}/>
             <Typography
             variant='body1'
             sx={{
@@ -86,8 +101,8 @@ const NotificationItem = memo(({sender,_id,handle})=>{
               sm:"row",
             }}
             >
-              <Button onClick={()=>handle({_id,accept:true})}>Accept</Button>
-              <Button  color="error" onClick={()=>handle({_id,accept:false})}>Reject</Button>
+              <Button onClick={()=>handler({_id,accept:true})}>Accept</Button>
+              <Button  color="error" onClick={()=>handler({_id,accept:false})}>Reject</Button>
             </Stack>
         </Stack>
     </ListItem>
